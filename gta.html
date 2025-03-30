@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cyber Awareness - Movie Hacking Accuracy</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Orbitron&display=swap");
+    *, *:before, *:after {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #212121;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #ccc;
+      font-family: sans-serif;
+      font-size: 18px;
+      margin: 0;
+      position: relative;
+    }
+
+    .background-cover {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      opacity: 0.3;
+    }
+
+    .movie-title {
+      font-family: "Orbitron", monospace;
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #F3E600;
+      text-align: center;
+      z-index: 1;
+    }
+
+    .range {
+      position: relative;
+      background-color: #333;
+      width: 300px;
+      height: 30px;
+      transform: skew(30deg);
+      font-family: "Orbitron", monospace;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .range__fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 100%;
+      background-color: #F3E600;
+      z-index: 0;
+    }
+
+    .range__percent {
+      position: absolute;
+      left: 5%;
+      top: 50%;
+      transform: translateY(-50%) skewX(-30deg);
+      color: #000;
+      z-index: 1;
+    }
+
+    .range__label {
+      transform: skew(-30deg) translateY(-100%);
+      line-height: 1.5;
+    }
+
+    @keyframes load {
+      from { width: 0; }
+      to { width: var(--width); }
+    }
+
+    @keyframes glitch {
+      0%, 5% { transform: translate(0, 0); }
+      1% { transform: translate(-5%, -10%); }
+      2% { transform: translate(10%, 30%); }
+      3% { transform: translate(-43%, 10%); }
+      4% { transform: translate(2%, -23%); }
+    }
+
+    @keyframes kathalan-special {
+      0% { width: 0; }
+      50% { width: 92%; }
+      100% { width: 70%; }
+    }
+  </style>
+</head>
+<body>
+  <img class="background-cover" id="backgroundImage" src="" alt="Movie Background" style="background-position: center;background-size: cover;">
+  <div class="movie-title" id="movieTitle"></div>
+  <div class="range" id="progressBar">
+    <div class="range__fill" id="progressFill"></div>
+    <div class="range__percent" id="percentText"></div>
+    <div class="range__label">Accuracy</div>
+  </div>
+
+  <script>
+    const movies = [
+      { name: "Farzi", accuracy: 80, imageUrl: './images/farzi.png' },
+      { name: "Blackhat", accuracy: 95, imageUrl: './images/blackhat.png' },
+      { name: "Love Today", accuracy: 99, imageUrl: './images/love-today.png' },
+      { name: "Singam 3", accuracy: 75, imageUrl: './images/singam-3.png' },
+      { name: "Kudumbasthan", accuracy: 93, imageUrl: './images/kudumbasthan.png' },
+      { name: "I am Kathalan", accuracy: 70, special: true, imageUrl: './images/i-am-kathalan.png' },
+      { name: "Kee", accuracy: 88, imageUrl: './images/kee.png' }
+    ];
+
+    let currentIndex = -1;
+    const movieTitle = document.getElementById('movieTitle');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    const percentText = document.getElementById('percentText');
+    const backgroundImage = document.getElementById('backgroundImage');
+
+    function updateDisplay(direction = 'forward') {
+      // Update index based on direction
+      if (direction === 'forward') {
+        currentIndex = (currentIndex + 1) % movies.length;
+      } else {
+        currentIndex = (currentIndex - 1 + movies.length) % movies.length;
+      }
+
+      const movie = movies[currentIndex];
+
+      // Update movie title
+      movieTitle.textContent = movie.name;
+
+      // Update background image
+      backgroundImage.src = movie.imageUrl;
+      
+
+      // Reset animation and width
+      progressFill.style.animation = 'none';
+      progressFill.style.width = '0';
+      void progressFill.offsetWidth; // Trigger reflow
+
+      // Clear any existing timeouts for percentage text updates
+      clearTimeout(window.kathalanTimeout1);
+      clearTimeout(window.kathalanTimeout2);
+
+      if (movie.special) {
+        // For "I am Kathalan", sync text with animation
+        percentText.textContent = '0%';
+        progressFill.style.animation = 'kathalan-special 1s forwards linear, glitch 2s infinite linear';
+        
+        // Update text to 92% at 50% of animation (0.5s)
+        window.kathalanTimeout1 = setTimeout(() => {
+          percentText.textContent = '92%';
+        }, 500);
+
+        // Update text to 70% at end of animation (1s)
+        window.kathalanTimeout2 = setTimeout(() => {
+          percentText.textContent = movie.accuracy + '%';
+        }, 1000);
+      } else {
+        // For other movies, set text immediately and animate bar
+        percentText.textContent = movie.accuracy + '%';
+        progressFill.style.setProperty('--width', movie.accuracy + '%');
+        progressFill.style.animation = 'load 0.5s forwards linear, glitch 2s infinite linear';
+      }
+    }
+
+    // Initial display
+    updateDisplay('forward');
+
+    // Listen for arrow keys
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') {
+        updateDisplay('forward');
+      } else if (e.key === 'ArrowLeft') {
+        updateDisplay('backward');
+      }
+    });
+  </script>
+</body>
+</html>
